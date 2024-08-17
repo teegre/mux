@@ -165,7 +165,9 @@ run_tmux_session()
   declare -a active_panes
 
   local window pane cmd
-  local split pane_num active new_pane=0 lineno=0
+  local split pane_num active
+  # local new_pane=0
+  local lineno=0
 
   while read window pane cmd
   do
@@ -191,19 +193,21 @@ run_tmux_session()
       exit 6
     }
 
-    (( new_pane == pane_num )) && {
-      echo "error: identical panes line ${lineno}."
-      tmux kill-session -t $session
-      return 6
-    }
+    # (( new_pane == pane_num )) && {
+    #   echo "error: identical panes line ${lineno}."
+    #   tmux kill-session -t $session
+    #   return 6
+    # }
 
     [[ $split ]] && split="-${split}"
 
     active=${pane//[^*]}
     [[ $active ]] && active_panes+=("$session:$window.$pane_num")
 
-    [[ $(tmux lsw -t $session -F "#{window_name}" | grep "^${window}$") ]] ||
+    [[ $(tmux lsw -t $session -F "#{window_name}" | grep "^${window}$") ]] || {
       tmux new-window -a -t $session -n $window -c $session_root
+      new_pane=0
+    }
 
     if [[ ! $(tmux lsp -t $session:$window -F "#{pane_number}" | grep "^${pane_num}$") ]] \
       && [[ $pane_num != 1 ]]
@@ -211,7 +215,7 @@ run_tmux_session()
       tmux split-window -t ${session}:${window} $split
     fi
 
-    new_pane=$pane_num
+    # new_pane=$pane_num
 
     tmux send-key -t $window.$pane_num "$cmd" C-m
 
