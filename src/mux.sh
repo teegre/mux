@@ -10,7 +10,7 @@
 # C : 2024-08-16
 # M : 2024-08-17
 
-MUX_VERSION="20240817-0.0.1"
+MUX_VERSION="0.0.1"
 
 declare MUX_SESSION_FILE
 MUX_SESSION_DIR="${HOME}/.config/mux"
@@ -200,9 +200,18 @@ run_tmux_session()
   tmux attach -t $session
 }
 
+command -v tmux > /dev/null || {
+  echo "Missing dependency: mux won't work without tmux."
+  exit 1
+}
+
+command -v grep > /dev/null || {
+  echo "Missing dependency: mux won't work withou grep."
+  exit 1
+}
+
 [[ $1 ]] || {
-  echo "MUX version $MUX_VERSION"
-  echo "Basic tmux session manager"
+  echo "mux: version $MUX_VERSION"
   echo
   echo "This program is free software."
   echo "It is distributed AS IS with NO WARRANTY."
