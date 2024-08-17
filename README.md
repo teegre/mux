@@ -31,6 +31,12 @@ Edit an existing session.
 `mux rm <session>`
 Remove a session.
 
+`mux version`
+Show version and exit.
+
+`mux help`
+Show help and exit.
+
 ## Configuration
 
 Add the following lines to the `.tmux.conf` file:
@@ -38,7 +44,7 @@ Add the following lines to the `.tmux.conf` file:
 ```
 set -g base-index 1
 setw -g pane-base-index 1
-set-option -g renumber-windows on 
+set -g renumber-windows on
 ```
 
 Also, make sure `$EDITOR` environment variable is set properly.
