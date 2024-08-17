@@ -4,7 +4,7 @@ A basic session manager for tmux.
 
 ## Dependencies
 
-Latest versions of **bash**, **grep** and **tmux** (obviously).
+Latest versions of **bash**, **coreutils**, **grep** and **tmux** (obviously).
 
 ## Installation
 
