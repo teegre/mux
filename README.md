@@ -115,7 +115,7 @@ Each window and pane is defined by a line with the following format:
     my-window 1* clear; neofetch
     my-window 2 clear; neofetch
     my-window 3 clear; neofetch
-    my-window layout 4bcb,239x57,0,0{88x57,0,0,16,150x57,89,0[150x28,89,0,17,150x28,89,29,18]}
+    my-window layout 8bbe,239x57,0,0{88x57,0,0,24,150x57,89,0[150x28,89,0,25,150x28,89,29,26]}
     ```
 
 ### Comments
