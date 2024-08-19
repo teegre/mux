@@ -92,7 +92,7 @@ Each window and pane is defined by a line with the following format:
 - **Active Pane**:
   
   - **`*`**: Indicates that the pane should be the active one after the session starts.
-  - Example: `mywindow 2* git status` (Makes pane `2` in window `1` the active pane.)
+  - Example: `mywindow 2* git status` (Makes pane `2` in window `mywindow` the active pane.)
 
 - **Setting Layout**:
   
