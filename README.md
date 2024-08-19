@@ -17,6 +17,10 @@ Then:
 Finally:
 `# make install`
 
+## Uninstall
+
+`# make uninstall`
+
 ## Usage
 
 `mux <session>`
@@ -53,7 +57,7 @@ Also, make sure `$EDITOR` environment variable is set properly.
 
 ### General Structure
 
-A session file is a plain text file that define the configuration of a `tmux` session.
+A session file is a plain text file that defines the configuration of a `tmux` session.
 
 ### session-name and session-root
 
@@ -94,20 +98,27 @@ Each window and pane is defined by a line with the following format:
   
   - **`layout`**: Applies a specific layout to the window.
   - Example: `mywindow layout main-horizontal` (Sets the layout of window `1` to `main-horizontal`.)
+  
+  - For more complex layout, it is possible to paste the output of `tmux` **list-windows** command.
+  - Example:
+    
+    ```
+    # Output of 'tmux list-windows -t test-session'
+    #
+    # 1: my-window* (3 panes) [239x57] [layout 8bbe,239x57,0,0{88x57,0,0,24,150x57,89,0[150x28,89,0,25,150x28,89,29,26]}] @15 (active)
+    
+    # file: test.mux
+    
+    session-name: test-session
+    session-root: ~
+    
+    my-window 1* clear; neofetch
+    my-window 2 clear; neofetch
+    my-window 3 clear; neofetch
+    my-window layout 4bcb,239x57,0,0{88x57,0,0,16,150x57,89,0[150x28,89,0,17,150x28,89,29,18]}
+    ```
 
 ### Comments
 
-- Lines starting with `#` are comments and are ignored by the **mux**.
+- Lines starting with `#` are comments and are ignored by **mux**.
   - Example: `# This is a comment`
-
-## License
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
