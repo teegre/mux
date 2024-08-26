@@ -10,7 +10,7 @@
 # C : 2024-08-16
 # M : 2024-08-26
 
-MUX_VERSION="0.0.2"
+MUX_VERSION="0.1.0"
 
 declare MUX_SESSION_FILE
 MUX_SESSION_DIR="${HOME}/.config/mux"
@@ -163,7 +163,7 @@ read_config()
 
  while read -r line
  do
-   [[ $line =~ ^#.*$ ]] && continue
+   [[ $line =~ ^# ]] && continue
    [[ $line =~ $regex ]] && {
      [[ ${BASH_REMATCH[1]} ]] || return 2
 
@@ -179,6 +179,26 @@ read_config()
  return 1
 }
 
+# cmd fmt searchstr ?target
+tmux_search()
+{
+  local cmd fmt str target args
+  cmd="$1"
+  fmt="$2"
+  str="$3"
+  target="$4"
+
+  [[ $target ]] && args="$cmd -t $target -F $fmt"
+  [[ $target ]] || args="$cmd -F $fmt"
+
+  while read
+  do
+    [[ $REPLY == "$str" ]] && return 0
+  done < <(tmux ${args} 2> /dev/null)
+
+  return 1
+}
+
 run_tmux_session()
 {
   session="$(read_config session-name)" || return $?
@@ -186,7 +206,7 @@ run_tmux_session()
 
   [[ $TERM =~ ^tmux ]] && return 5
 
-  if [[ ! $(tmux ls -F "#{session_name}" 2> /dev/null | grep "^${session}$") ]]
+  if ! tmux_search "ls" "#{session_name}" "$session"
   then
     tmux new-session -s "$session" -d
   else
@@ -229,12 +249,10 @@ run_tmux_session()
     active=${pane//[^*]}
     [[ $active ]] && active_panes+=("$session:$window.$pane_num")
 
-    [[ $(tmux lsw -t $session -F "#{window_name}" | grep "^${window}$") ]] || {
+    tmux_search "lsw" "#{window_name}" "$window" "$session" ||
       tmux new-window -a -t $session -n $window -c $session_root
-    }
 
-    if [[ ! $(tmux lsp -t $session:$window -F "#{pane_number}" | grep "^${pane_num}$") ]] \
-      && [[ $pane_num != 1 ]]
+    if ! $(tmux_search "lsp" "#{pane_number}" "$pane_num" "$session:$window") && [[ $pane_num != 1 ]]
     then
       tmux split-window -t ${session}:${window} $split
     fi
@@ -243,7 +261,6 @@ run_tmux_session()
 
   done < $MUX_SESSION_FILE
 
-  
   tmux kill-window -t :1
   tmux select-window -t :1
   for p in ${active_panes[@]}
@@ -258,11 +275,6 @@ deps=0
 
 command -v tmux > /dev/null || {
   echo "Missing dependency: tmux."
-  ((deps++))
-}
-
-command -v grep > /dev/null || {
-  echo "Missing dependency: grep."
   ((deps++))
 }
 
