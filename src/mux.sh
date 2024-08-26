@@ -8,9 +8,9 @@
 #
 # MAIN
 # C : 2024-08-16
-# M : 2024-08-17
+# M : 2024-08-26
 
-MUX_VERSION="0.0.1"
+MUX_VERSION="0.0.2"
 
 declare MUX_SESSION_FILE
 MUX_SESSION_DIR="${HOME}/.config/mux"
@@ -22,7 +22,8 @@ mux: version $MUX_VERSION
 Basic session manager for tmux.
 
 Commands:
-  mux <session>   - run a tmux session.
+  mux             - show session list.
+  mux <name>      - run a tmux session.
   mux new <name>  - create a new tmux session.
   mux edit <name> - edit an existing tmux session.
   mux rm <name>   - remove a tmux session.
@@ -45,9 +46,40 @@ confirm()
   return 1
 }
 
+list_sessions()
+{
+  # show available sessions.
+
+  [[ -d "${MUX_SESSION_DIR}" ]] || {
+    echo "no sessions."
+    echo "try: mux help"
+    return 1
+  }
+
+  local session_name session_count=0
+
+  echo "available sessions:"
+  for session in "${MUX_SESSION_DIR}"/*
+  do
+    # strip filepath.
+    session_name="${session//${MUX_SESSION_DIR}\/}"
+    # strip file extension.
+    session_name="${session_name%.*}"
+
+    printf "  %s\n" "$session_name"
+    ((session_count++))
+  done
+
+  echo
+  ((session_count == 0)) && echo "try: mux help"
+  ((session_count == 0)) || echo "use: mux <name>"
+
+  return 0
+}
+
 new_session()
 {
-  # create a new session
+  # create a new session.
 
   [[ $1 ]] || {
     echo "no session name given."
@@ -207,8 +239,6 @@ run_tmux_session()
       tmux split-window -t ${session}:${window} $split
     fi
 
-    # new_pane=$pane_num
-
     tmux send-key -t $window.$pane_num "$cmd" C-m
 
   done < $MUX_SESSION_FILE
@@ -237,7 +267,7 @@ command -v grep > /dev/null || {
 }
 
 command -v mktemp > /dev/null || {
-  echo "Missing dependency: mktemp."
+  echo "Missing dependency: mktemp (coreutils)."
   ((deps++))
 }
 
@@ -251,8 +281,8 @@ command -v mktemp > /dev/null || {
 
 
 [[ $1 ]] || {
-  echo "try: mux help"
-  exit 1
+  list_sessions
+  exit $?
 }
 
 case $1 in

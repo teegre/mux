@@ -6,7 +6,7 @@ A basic session manager for tmux.
 
 Latest versions of **bash**, **coreutils**, **grep** and **tmux** (obviously).
 
-## Installation
+## Install
 
 Clone this repository:
 `$ git clone github.com/teegre/mux`
@@ -22,6 +22,9 @@ Finally:
 `# make uninstall`
 
 ## Usage
+
+`mux`
+Show list of existing sessions and exit.
 
 `mux <session>`
 Run the given tmux session.
