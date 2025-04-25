@@ -59,7 +59,7 @@ list_sessions()
   local session_name session_count=0
 
   echo "available sessions:"
-  for session in "${MUX_SESSION_DIR}"/*
+  for session in "${MUX_SESSION_DIR}"/*.mux
   do
     # strip filepath.
     session_name="${session//${MUX_SESSION_DIR}\/}"
