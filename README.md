@@ -38,6 +38,9 @@ Edit an existing session.
 `mux rm <session>`
 Remove a session.
 
+`mux mv <session> <new_session>`
+Rename a session.
+
 `mux version`
 Show version and exit.
 
