@@ -128,18 +128,23 @@ edit_session()
 
 rename_session()
 {
-  [[ -f "${MUX_SESSION_DIR}/${1}.mux" ]] || {
+  local old new
+
+  old="${MUX_SESSION_DIR}/${1}.mux"
+  new="${MUX_SESSION_DIR}/${2}.mux"
+
+  [[ -f "${old}" ]] || {
     echo "error: session file '$1' not found."
     return 1
   }
 
-  local old="$1" new="$2"
+  [[ -f "${new}" ]] && {
+    echo "error: a '$2' session file already exists."
+    return 1
+  }
 
-  MUX_SESSION_FILE="${MUX_SESSION_DIR}/${old}.mux"
-  NEW_SESSION_FILE="${MUX_SESSION_DIR}/${new}.mux"
-
-  mv "${MUX_SESSION_FILE}" "${NEW_SESSION_FILE}" 2> /dev/null && {
-    echo "renamed '${old} → ${new}'."
+  mv "${old}" "${new}" 2> /dev/null && {
+    echo "renamed '${1} → ${2}'."
     return 0
   }
   echo "error: renaming '${old}' failed."
@@ -160,11 +165,11 @@ rm_session()
        echo "removed '$1'."
        return 0
      }
-     echo "error: removing `$1` failed."
+     echo "error: removing '$1' failed."
      return $?
   }
 
-  "cancelled."
+  echo "cancelled."
   return 1
 }
 
