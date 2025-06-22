@@ -8,9 +8,9 @@
 #
 # MAIN
 # C : 2024-08-16
-# M : 2024-08-26
+# M : 2025-06-22
 
-MUX_VERSION="0.1.0"
+MUX_VERSION="0.1.1"
 
 declare MUX_SESSION_FILE
 MUX_SESSION_DIR="${HOME}/.config/mux"
@@ -22,13 +22,14 @@ mux: version $MUX_VERSION
 Basic session manager for tmux.
 
 Commands:
-  mux             - show session list.
-  mux <name>      - run a tmux session.
-  mux new <name>  - create a new tmux session.
-  mux edit <name> - edit an existing tmux session.
-  mux rm <name>   - remove a tmux session.
-  mux version     - show version and exit.
-  mux help        - show this help screen and exit.
+  mux                - show session list.
+  mux <name>         - run a tmux session.
+  mux new <name>     - create a new tmux session.
+  mux edit <name>    - edit an existing tmux session.
+  mux mv <old> <new> - rename an existing session
+  mux rm <name>      - remove a tmux session.
+  mux version        - show version and exit.
+  mux help           - show this help screen and exit.
 
 HELP
 }
@@ -125,17 +126,41 @@ edit_session()
   return 0
 }
 
+rename_session()
+{
+  [[ -f "${MUX_SESSION_DIR}/${1}.mux" ]] || {
+    echo "error: session file '$1' not found."
+    return 1
+  }
+
+  local old="$1" new="$2"
+
+  MUX_SESSION_FILE="${MUX_SESSION_DIR}/${old}.mux"
+  NEW_SESSION_FILE="${MUX_SESSION_DIR}/${new}.mux"
+
+  mv "${MUX_SESSION_FILE}" "${NEW_SESSION_FILE}" 2> /dev/null && {
+    echo "renamed '${old} → ${new}'."
+    return 0
+  }
+  echo "error: renaming '${old}' failed."
+  return $?
+}
+
 rm_session()
 {
   [[ -f "${MUX_SESSION_DIR}/${1}.mux" ]] || {
-    echo "session file '$1' not found."
+    echo "error: session file '$1' not found."
     return 1
   }
 
   MUX_SESSION_FILE="${MUX_SESSION_DIR}/${1}.mux"
 
   confirm "remove '$1'?" && {
-     rm "$MUX_SESSION_FILE" 2> /dev/null && echo "removed '$1'."
+     rm "$MUX_SESSION_FILE" 2> /dev/null && {
+       echo "removed '$1'."
+       return 0
+     }
+     echo "error: removing `$1` failed."
      return $?
   }
 
@@ -298,9 +323,10 @@ command -v mktemp > /dev/null || {
 }
 
 case $1 in
-  new     ) new_session  $2;    exit $? ;;
-  edit    ) edit_session $2;    exit $? ;;
-  rm      ) rm_session   $2;    exit $? ;;
+  new     ) new_session  $2;          exit $? ;;
+  edit    ) edit_session $2;          exit $? ;;
+  mv      ) rename_session "$2" "$3"; exit $? ;;
+  rm      ) rm_session   $2;          exit $? ;;
   version ) echo "mux: version $MUX_VERSION"; exit 0 ;;
   help    ) mux_help; exit 0 ;;
   *       ) MUX_SESSION_FILE="${MUX_SESSION_DIR}/${1}.mux"; run_tmux_session
