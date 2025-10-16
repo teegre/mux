@@ -8,9 +8,9 @@
 #
 # MAIN
 # C : 2024-08-16
-# M : 2025-06-22
+# M : 2025-10-16
 
-MUX_VERSION="0.1.1"
+MUX_VERSION="0.1.2"
 
 declare MUX_SESSION_FILE
 MUX_SESSION_DIR="${HOME}/.config/mux"
@@ -246,7 +246,7 @@ run_tmux_session()
 
   declare -a active_panes
 
-  local window pane cmd
+  local window pane cmd current= index=0
   local split pane_num active
   local lineno=0
 
@@ -279,8 +279,13 @@ run_tmux_session()
     active=${pane//[^*]}
     [[ $active ]] && active_panes+=("$session:$window.$pane_num")
 
+    [[ $window != $current ]] && {
+      current="$window"
+      ((index++))
+    }
+
     tmux_search "lsw" "#{window_name}" "$window" "$session" ||
-      tmux new-window -a -t $session -n $window -c $session_root
+      tmux new-window -a -t $index -n $window -c $session_root
 
     if ! $(tmux_search "lsp" "#{pane_number}" "$pane_num" "$session:$window") && [[ $pane_num != 1 ]]
     then
